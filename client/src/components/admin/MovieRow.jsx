@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { moviesAPI } from '../../api/index'
+import { moviesAPI } from '../../api/allapi'
 import { useToast } from '../../context/ToastContext'
 import { Stars } from '../ui/Stars'
 import Button from '../ui/Button'

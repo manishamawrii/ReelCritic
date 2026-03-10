@@ -1,4 +1,4 @@
-import { reviewsAPI } from '../api/index'
+import { reviewsAPI } from '../api/allapi'
 import { useEffect, useCallback, useState } from 'react'
 
 export function useReviews(movieId) {

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { reviewsAPI } from '../../api/index'
+import { reviewsAPI } from '../../api/allapi'
 import { StarPicker } from '../ui/Stars'
 import { Textarea } from '../ui/Input'
 import Button from '../ui/Button'
