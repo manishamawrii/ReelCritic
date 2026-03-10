@@ -15,11 +15,10 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    process.env.CLIENT_URL  // ✅ your deployed frontend URL
+    "https://reel-critic-oi4w.vercel.app"  // ✅ exact URL
   ],
   credentials: true
 }));
-
 app.use(express.json());
 
 // Routes
