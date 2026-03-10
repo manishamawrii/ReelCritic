@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useToast } from '../../context/ToastContext'
-import { moviesAPI } from '../../api'
+import { moviesAPI } from '../../api/index'
 import { Input, Textarea } from '../ui/Input'
 import Button from '../ui/Button'
 

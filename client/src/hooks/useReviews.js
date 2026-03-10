@@ -1,4 +1,4 @@
-import { reviewsAPI } from '../api' // ✅ add this - adjust path as needed
+import { reviewsAPI } from '../api/index'
 import { useEffect, useCallback, useState } from 'react'
 
 export function useReviews(movieId) {
