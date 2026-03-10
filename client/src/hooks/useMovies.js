@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { moviesAPI } from '../api'
+import { moviesAPI } from '../api/index'
 
 export function useMovies(params = {}) {
   const [movies, setMovies]   = useState([])
