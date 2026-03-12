@@ -4,8 +4,8 @@ import { useReviews } from '../hooks/useReviews'
 import { Stars } from '../components/ui/Stars'
 import ReviewForm from '../components/reviews/ReviewForm'
 import ReviewCard from '../components/reviews/ReviewCard'
-import { PageSpinner, EmptyState, TrailerSkeleton } from '../components/ui/Spinner'
-import { useState } from 'react'
+import { PageSpinner, EmptyState } from '../components/ui/Spinner'
+
 // YouTube URL se embed URL banata hai
 const getYouTubeEmbedUrl = (url) => {
   if (!url) return null
@@ -17,11 +17,14 @@ export default function MovieDetailPage() {
   const { id }   = useParams()
   const navigate = useNavigate()
 
+  const { movie, loading: mLoading, refetch: refetchMovie } = useMovie(id)
+  const { reviews, loading: rLoading, refetch: refetchReviews } = useReviews(id)
 
-  const [trailerLoading, setTrailerLoading] = useState(true)
-
-  const { movie, loading: mLoading }        = useMovie(id)
-  const { reviews, loading: rLoading, refetch } = useReviews(id)
+  // ✅ Refetch both reviews list AND movie (avg rating update)
+  const handleReviewChange = () => {
+    refetchReviews()
+    refetchMovie()
+  }
 
   if (mLoading) return <PageSpinner />
 
@@ -77,7 +80,7 @@ export default function MovieDetailPage() {
 
           {/* Rating */}
           <div className="flex items-center gap-3 mb-5">
-            <Stars rating={movie.averageRating || 0} size="lg" />
+            <Stars rating={movie.averageRating || 0} size="md" />
             {movie.numReviews > 0 ? (
               <>
                 <span className="font-display text-2xl text-gold">
@@ -113,31 +116,21 @@ export default function MovieDetailPage() {
             </p>
           )}
 
-          {/* ✅ Trailer — description ke neeche */}
+          {/* Trailer */}
           {embedUrl && (
             <div className="mt-2">
               <p className="text-[0.65rem] uppercase tracking-widest text-gold mb-3">
                 Trailer
               </p>
-            <div className="relative w-full aspect-video rounded border border-border overflow-hidden">
-
-  {/* jab tak trailer load ho */}
-  {trailerLoading && (
-    <div className="absolute inset-0 flex items-center justify-center bg-black">
-      <TrailerSkeleton />
-    </div>
-  )}
-
-  <iframe
-    src={embedUrl}
-    title={`${movie.title} Trailer`}
-    className="w-full h-full"
-    onLoad={() => setTrailerLoading(false)}
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowFullScreen
-  />
-
-</div>
+              <div className="relative w-full aspect-video rounded border border-border overflow-hidden">
+                <iframe
+                  src={embedUrl}
+                  title={`${movie.title} Trailer`}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
             </div>
           )}
 
@@ -153,8 +146,10 @@ export default function MovieDetailPage() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <ReviewForm movieId={id} onSuccess={refetch} />
+        {/* Write review form */}
+        <ReviewForm movieId={id} onSuccess={handleReviewChange} />
 
+        {/* Reviews list */}
         {rLoading ? (
           <PageSpinner />
         ) : reviews.length === 0 ? (
@@ -162,7 +157,12 @@ export default function MovieDetailPage() {
         ) : (
           <div className="flex flex-col gap-3">
             {reviews.map((r, i) => (
-              <ReviewCard key={r._id} review={r} index={i} />
+              <ReviewCard
+                key={r._id}
+                review={r}
+                index={i}
+                onSuccess={handleReviewChange} // ✅ pass refetch to each card
+              />
             ))}
           </div>
         )}

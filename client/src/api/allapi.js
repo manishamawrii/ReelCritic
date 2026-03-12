@@ -32,10 +32,11 @@ export const moviesAPI = {
 
 // ── Reviews
 export const reviewsAPI = {
-  getByMovie: (movieId) => api.get(`/reviews/${movieId}`),
-  create:     (movieId, data) => api.post(`/reviews/${movieId}`, data),
+  getByMovie: (movieId)        => api.get(`/reviews/movie/${movieId}`),   // ✅ updated
+  create:     (movieId, data)  => api.post(`/reviews/movie/${movieId}`, data), // ✅ updated
+  update:     (reviewId, data) => api.put(`/reviews/${reviewId}`, data),
+  delete:     (reviewId)       => api.delete(`/reviews/${reviewId}`),
 }
-
 export default api
 
 

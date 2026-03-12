@@ -1,6 +1,22 @@
 import Review from "../models/Review.js";
 import Movie from "../models/Movie.js";
 
+// ── HELPER — Recalculate avg rating after any review change
+const recalculateRating = async (movieId) => {
+  const movie = await Movie.findById(movieId);
+  if (!movie) return;
+
+  const allReviews = await Review.find({ movie: movieId });
+
+  movie.numReviews    = allReviews.length;
+  movie.averageRating = allReviews.length
+    ? allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length
+    : 0; // ← 0 if no reviews left after deletion
+
+  await movie.save();
+};
+
+// ── CREATE REVIEW
 export const createReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
@@ -24,31 +40,72 @@ export const createReview = async (req, res) => {
       comment,
     });
 
-    // Recalculate average rating
-    const reviews = await Review.find({ movie: movieId });
-    movie.numReviews = reviews.length;
-    movie.averageRating =
-      reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
-    await movie.save();
+    await recalculateRating(movieId);
 
-    const populatedReview = await review.populate("user", "name");
-    res.status(201).json(populatedReview);
+    const populated = await review.populate("user", "name");
+    res.status(201).json(populated);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// ── GET REVIEWS BY MOVIE
 export const getMovieReviews = async (req, res) => {
   try {
-    console.log("MovieId:", req.params.movieId)
-
     const reviews = await Review.find({ movie: req.params.movieId })
       .populate("user", "name")
       .sort({ createdAt: -1 });
 
-    console.log("Reviews found:", reviews)
-
     res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ── UPDATE OWN REVIEW
+export const updateReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.reviewId);
+
+    if (!review)
+      return res.status(404).json({ message: "Review not found" });
+
+    // ✅ Only the owner can edit their review
+    if (review.user.toString() !== req.user._id.toString())
+      return res.status(403).json({ message: "Not authorized to edit this review" });
+
+    review.rating  = req.body.rating  ?? review.rating;
+    review.comment = req.body.comment ?? review.comment;
+
+    const updated = await review.save();
+    await recalculateRating(review.movie);
+
+    const populated = await updated.populate("user", "name");
+    res.json(populated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ── DELETE OWN REVIEW
+export const deleteReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.reviewId);
+
+    if (!review)
+      return res.status(404).json({ message: "Review not found" });
+
+    // ✅ Only the owner can delete their review
+    if (review.user.toString() !== req.user._id.toString())
+      return res.status(403).json({ message: "Not authorized to delete this review" });
+
+    const movieId = review.movie;
+    await review.deleteOne();
+
+    // Recalculate after deletion — avg might drop or become 0
+    await recalculateRating(movieId);
+
+    res.json({ message: "Review deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

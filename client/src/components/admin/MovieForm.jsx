@@ -15,7 +15,7 @@ const [form, setForm] = useState({
   genre:       movie?.genre       || '',
   releaseYear: movie?.releaseYear || '',
   poster:      movie?.poster      || '',
-  trailer:     movie?.trailer     || '', // ✅ NEW
+  trailer:     movie?.trailer     || '', 
 })
 
 // Form grid mein add karo
