@@ -6,7 +6,7 @@ import { formatDate } from '../../utils/helpers'
 import { reviewsAPI } from '../../api/allapi'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 export default function ReviewCard({ review, index = 0, onSuccess }) {
   const { user }  = useAuth()
   const toast     = useToast()
@@ -75,23 +75,24 @@ export default function ReviewCard({ review, index = 0, onSuccess }) {
         <div className="flex items-center gap-3 shrink-0">
           {!isEditing && <Stars rating={review.rating} size="md" />}
 
-          {/* ✅ Only show edit/delete to review owner */}
+     
           {isOwner && !isEditing && (
-            <div className="flex gap-1">
-              <button
-                onClick={() => setIsEditing(true)}
-                className="text-xs text-muted hover:text-gold transition-colors px-2 py-1 rounded border border-border hover:border-gold cursor-pointer bg-transparent"
-              >
-                Edit
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="text-xs text-muted hover:text-red transition-colors px-2 py-1 rounded border border-border hover:border-red cursor-pointer bg-transparent disabled:opacity-50"
-              >
-                {deleting ? '...' : 'Delete'}
-              </button>
-            </div>
+            <div className="flex gap-2">
+  <button
+    onClick={() => setIsEditing(true)}
+    className="p-1.5 rounded border border-border text-muted hover:text-gold hover:border-gold transition-colors cursor-pointer bg-transparent"
+  >
+    <FiEdit2 size={14} />
+  </button>
+
+  <button
+    onClick={handleDelete}
+    disabled={deleting}
+    className="p-1.5 rounded border border-border text-muted hover:text-red hover:border-red transition-colors cursor-pointer bg-transparent disabled:opacity-50"
+  >
+    <FiTrash2 size={14} />
+  </button>
+</div>
           )}
         </div>
       </div>
